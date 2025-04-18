@@ -1,1 +1,979 @@
 
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BiT KiLLER</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      /* Reusing the same styles from main page */
+      :root {
+        --dark-blue: #0a192f;
+        --navy: #172a45;
+        --light-navy: #303c55;
+        --lightest-navy: #465672;
+        --slate: #8892b0;
+        --light-slate: #a8b2d1;
+        --lightest-slate: #ccd6f6;
+        --white: #e6f1ff;
+        --accent: #64ffda;
+        --transparent: rgba(10, 25, 47, 0.85);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          "Calibre",
+          "Inter",
+          -apple-system,
+          sans-serif;
+        background-color: var(--dark-blue);
+        color: var(--white);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .glass-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        background: linear-gradient(
+          135deg,
+          rgba(10, 25, 47, 0.95) 0%,
+          rgba(23, 42, 69, 0.95) 100%
+        );
+      }
+
+      .noise-texture {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+      }
+
+      .bubbles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0) translateX(0);
+          opacity: 0;
+        }
+        10% {
+          opacity: 0.3;
+        }
+        90% {
+          opacity: 0.3;
+        }
+        100% {
+          transform: translateY(-100vh) translateX(20px);
+          opacity: 0;
+        }
+      }
+
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 1.5rem 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 100;
+        backdrop-filter: blur(10px);
+        background-color: var(--transparent);
+        border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+      }
+
+      .logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: -1px;
+      }
+
+      nav ul {
+        display: flex;
+        gap: 2.5rem;
+        list-style: none;
+      }
+
+      nav a {
+        color: var(--light-slate);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        padding: 0.5rem 0;
+      }
+
+      nav a:hover {
+        color: var(--accent);
+      }
+
+      nav a::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: var(--accent);
+        transition: width 0.3s ease;
+      }
+
+      nav a:hover::after {
+        width: 100%;
+      }
+
+      /* about Page Specific Styles */
+      .work-container {
+        min-height: 100vh;
+        padding: 8rem 10% 1px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .section-title {
+        font-size: 2rem;
+        color: var(--lightest-slate);
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+      }
+
+      .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 70%;
+        height: 2px;
+        background-color: var(--accent);
+      }
+
+      .about-section,
+      .roles-section {
+        margin-bottom: 5rem;
+        background: rgba(23, 42, 69, 0.5);
+        backdrop-filter: blur(10px);
+        padding: 2.5rem;
+        border-radius: 10px;
+        border: 1px solid rgba(100, 255, 218, 0.1);
+        box-shadow: 0 10px 30px -15px rgba(2, 12, 27, 0.7);
+      }
+
+      .about-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 3rem;
+      }
+
+      .about-text {
+        flex: 1;
+      }
+
+      .about-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 0px solid var(--accent);
+        box-shadow: 0 0 5px rgba(100, 255, 218, 0.3);
+        opacity: 0.6;
+      }
+
+      .about-text h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        color: var(--lightest-slate);
+      }
+
+      .about-text p {
+        margin-bottom: 1.5rem;
+        color: var(--slate);
+        line-height: 1.7;
+      }
+
+      .quote {
+        font-style: italic;
+        color: var(--accent);
+        border-left: 3px solid var(--accent);
+        padding-left: 1.5rem;
+        margin: 2rem 0;
+        font-size: 1.2rem;
+      }
+
+      .roles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      .role-card {
+        background: rgba(23, 42, 69, 0.7);
+        border-radius: 8px;
+        padding: 2rem;
+        border: 1px solid rgba(100, 255, 218, 0.1);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .role-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px -10px rgba(2, 12, 27, 0.7);
+      }
+
+      .role-card h3 {
+        color: var(--accent);
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+      }
+
+      .role-card .company {
+        color: var(--light-slate);
+        margin-bottom: 1rem;
+        font-weight: 500;
+      }
+
+      .role-card .duration {
+        color: var(--slate);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        display: block;
+      }
+
+      .role-card p {
+        color: var(--light-slate);
+        line-height: 1.7;
+      }
+
+      /* Social Links and Email (same as main page) */
+      .social-links {
+        position: fixed;
+        left: 3rem;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+      }
+
+      .social-link {
+        color: var(--light-slate);
+        font-size: 1.4rem;
+        transition: all 0.3s ease;
+      }
+
+      .social-link:hover {
+        color: var(--accent);
+        transform: translateY(-3px);
+      }
+
+      .social-line {
+        width: 1px;
+        height: 100px;
+        background-color: var(--light-slate);
+        margin-top: 1.5rem;
+      }
+
+      .email-link {
+        position: fixed;
+        right: 3rem;
+        bottom: 0;
+        writing-mode: vertical-rl;
+        color: var(--light-slate);
+        text-decoration: none;
+        font-size: 0.9rem;
+        letter-spacing: 0.1em;
+        transition: all 0.3s ease;
+      }
+
+      .email-link:hover {
+        color: var(--accent);
+        transform: translateY(-3px);
+      }
+
+      .email-line {
+        width: 1px;
+        height: 100px;
+        background-color: var(--light-slate);
+        margin-top: 1.5rem;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        header {
+          padding: 1.5rem;
+        }
+
+        nav ul {
+          gap: 1.5rem;
+        }
+
+        .work-container {
+          padding: 8rem 1.5rem 5rem;
+        }
+
+        .about-content {
+          flex-direction: column;
+        }
+
+        .about-image {
+          align-self: center;
+        }
+
+        .social-links,
+        .email-link {
+          display: none;
+        }
+      }
+
+      /* Cursor (same as main page) */
+      .cursor {
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: var(--accent);
+        mix-blend-mode: difference;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        z-index: 999;
+        transition: transform 0.1s ease;
+      }
+    </style>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="glass-bg"></div>
+    <div class="noise-texture"></div>
+    <div class="bubbles" id="bubbles"></div>
+    <div class="cursor" id="cursor"></div>
+
+    <header>
+      <div class="logo">BK</div>
+      <nav>
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="#" class="active">About</a></li>
+          <li><a href="/projects.html">Projects</a></li>
+        </ul>
+      </nav>
+    </header>
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>BiT KiLLER</title>
+        <style>
+          /* Previous styles remain unchanged until new additions */
+
+          /* Enhanced Loading Animation */
+          .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-blue);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: all 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+          }
+
+          .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: translateY(0);
+            transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+          }
+
+          .loading-logo {
+            color: var(--accent);
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+          }
+
+          .loading-logo::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-blue);
+            transform-origin: left;
+            animation: revealLogo 1.5s cubic-bezier(0.87, 0, 0.13, 1) forwards;
+          }
+
+          @keyframes revealLogo {
+            0% {
+              transform: scaleX(1);
+            }
+            50% {
+              transform: scaleX(1);
+            }
+            100% {
+              transform: scaleX(0);
+            }
+          }
+
+          .loading-bar-container {
+            width: 250px;
+            height: 4px;
+            background: rgba(100, 255, 218, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+          }
+
+          .loading-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), #64ffdaaa);
+            border-radius: 4px;
+            position: absolute;
+            animation: loading 2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+          }
+
+          .loading-bar::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(255, 255, 255, 0.8),
+              transparent
+            );
+            animation: shimmer 2s infinite;
+          }
+
+          @keyframes loading {
+            0% {
+              width: 0;
+            }
+            100% {
+              width: 100%;
+            }
+          }
+
+          @keyframes shimmer {
+            0% {
+              transform: translateX(-100%);
+            }
+            100% {
+              transform: translateX(100%);
+            }
+          }
+
+          /* Particle Background for Loading */
+          .loading-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+          }
+
+          .particle {
+            position: absolute;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0;
+            animation: floatParticle linear infinite;
+          }
+
+          @keyframes floatParticle {
+            0% {
+              transform: translateY(0) translateX(0) rotate(0deg);
+              opacity: 0;
+            }
+            10% {
+              opacity: 0.6;
+            }
+            90% {
+              opacity: 0.6;
+            }
+            100% {
+              transform: translateY(-100vh) translateX(20px) rotate(360deg);
+              opacity: 0;
+            }
+          }
+
+          /* Page Content Animations */
+          body.loaded .loading-screen {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+          }
+
+          body.loaded .loading-content {
+            transform: translateY(-20px);
+          }
+
+          /* Staggered Content Animation */
+          .work-container,
+          header,
+          .social-links,
+          .email-link {
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+          }
+
+          body.loaded header {
+            opacity: 1;
+            animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: 0.2s;
+          }
+
+          body.loaded .work-container {
+            opacity: 1;
+            animation: gentleFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: 0.4s;
+          }
+
+          body.loaded .social-links,
+          body.loaded .email-link {
+            opacity: 1;
+            animation: gentleFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: 0.6s;
+          }
+
+          @keyframes slideDown {
+            from {
+              transform: translateY(-30px);
+            }
+            to {
+              transform: translateY(0);
+            }
+          }
+
+          @keyframes gentleFadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          /* Section-specific animations */
+          .section-title {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+          }
+
+          .about-section,
+          .roles-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+          }
+
+          body.loaded .section-title,
+          body.loaded .about-section,
+          body.loaded .roles-section {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+          }
+
+          .section-title {
+            transition-delay: 0.5s;
+          }
+
+          .about-section {
+            transition-delay: 0.7s;
+          }
+
+          .roles-section {
+            transition-delay: 0.9s;
+          }
+
+          /* Role card hover effects */
+          .role-card {
+            transform: perspective(1000px) rotateX(0) rotateY(0) scale(1);
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px -10px rgba(2, 12, 27, 0.3);
+          }
+
+          .role-card:hover {
+            transform: perspective(1000px) rotateX(2deg) rotateY(2deg)
+              scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(100, 255, 218, 0.2);
+          }
+
+          /* Floating accent elements */
+          .floating-accent {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(100, 255, 218, 0.05);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            filter: blur(1px);
+            z-index: -1;
+            animation: float 15s ease-in-out infinite;
+          }
+
+          .floating-accent:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            width: 120px;
+            height: 120px;
+            animation-delay: 0s;
+          }
+
+          .floating-accent:nth-child(2) {
+            top: 60%;
+            left: 80%;
+            width: 80px;
+            height: 80px;
+            animation-delay: 2s;
+          }
+
+          .floating-accent:nth-child(3) {
+            top: 30%;
+            left: 70%;
+            width: 150px;
+            height: 150px;
+            animation-delay: 4s;
+          }
+
+          @keyframes float {
+            0%,
+            100% {
+              transform: translateY(0) translateX(0) rotate(0deg);
+            }
+            50% {
+              transform: translateY(-20px) translateX(10px) rotate(5deg);
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <!-- Enhanced Loading Screen -->
+        <div class="loading-screen" id="loadingScreen">
+          <div class="loading-particles" id="loadingParticles"></div>
+          <div class="loading-content">
+            <div class="loading-logo">BK</div>
+            <div class="loading-bar-container">
+              <div class="loading-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating accent elements -->
+        <div class="floating-accent"></div>
+        <div class="floating-accent"></div>
+        <div class="floating-accent"></div>
+
+        <!-- Rest of your HTML remains the same until scripts -->
+
+        <script>
+          // Create loading particles
+          const loadingParticles = document.getElementById("loadingParticles");
+          const particleCount = 20;
+
+          for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement("div");
+            particle.classList.add("particle");
+
+            const size = Math.random() * 6 + 2;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.bottom = `-${size}px`;
+            particle.style.animationDuration = `${5 + Math.random() * 10}s`;
+            particle.style.animationDelay = `${Math.random() * 3}s`;
+            particle.style.opacity = `${Math.random() * 0.4 + 0.1}`;
+
+            loadingParticles.appendChild(particle);
+          }
+
+          // Wait for everything to load
+          window.addEventListener("load", function () {
+            // Add loaded class to body
+            document.body.classList.add("loaded");
+
+            // Remove loading screen after animation completes
+            setTimeout(function () {
+              const loadingScreen = document.getElementById("loadingScreen");
+              loadingScreen.style.display = "none";
+
+              // Create content bubbles
+              const bubblesContainer = document.getElementById("bubbles");
+              const bubbleCount = 15;
+
+              for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement("div");
+                bubble.classList.add("bubble");
+
+                const size = Math.random() * 100 + 50;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${Math.random() * 100}vw`;
+                bubble.style.bottom = `-${size}px`;
+                bubble.style.animationDuration = `${10 + Math.random() * 20}s`;
+                bubble.style.animationDelay = `${Math.random() * 5}s`;
+
+                bubblesContainer.appendChild(bubble);
+              }
+            }, 1200); // Match with CSS transition duration
+
+            // Add scroll-triggered animations
+            const animateOnScroll = () => {
+              const elements = document.querySelectorAll(
+                ".section-title, .about-section, .roles-section",
+              );
+              elements.forEach((el) => {
+                const elementTop = el.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+
+                if (elementTop < windowHeight - 100) {
+                  el.style.opacity = "1";
+                  el.style.transform = "translateX(0) translateY(0)";
+                }
+              });
+            };
+
+            window.addEventListener("scroll", animateOnScroll);
+            animateOnScroll(); // Run once on load
+          });
+
+          // Enhanced cursor effect
+          const cursor = document.getElementById("cursor");
+          let mouseX = 0,
+            mouseY = 0;
+          let cursorX = 0,
+            cursorY = 0;
+          let speed = 0.1;
+
+          const animateCursor = () => {
+            let distX = mouseX - cursorX;
+            let distY = mouseY - cursorY;
+
+            cursorX = cursorX + distX * speed;
+            cursorY = cursorY + distY * speed;
+
+            cursor.style.left = `${cursorX}px`;
+            cursor.style.top = `${cursorY}px`;
+
+            requestAnimationFrame(animateCursor);
+          };
+
+          document.addEventListener("mousemove", (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+          });
+
+          animateCursor();
+
+          // Cursor effects on interactive elements
+          const interactiveElements = document.querySelectorAll(
+            "a, button, .role-card, .cta-button",
+          );
+          interactiveElements.forEach((el) => {
+            el.addEventListener("mouseenter", () => {
+              cursor.style.transform = "translate(-50%, -50%) scale(3)";
+              cursor.style.opacity = "0.3";
+              cursor.style.backgroundColor = "var(--accent)";
+            });
+            el.addEventListener("mouseleave", () => {
+              cursor.style.transform = "translate(-50%, -50%) scale(1)";
+              cursor.style.opacity = "1";
+              cursor.style.backgroundColor = "var(--accent)";
+            });
+          });
+        </script>
+      </body>
+    </html>
+    <div class="work-container">
+      <h2 class="section-title">About Me</h2>
+
+      <section class="about-section">
+        <div class="about-content">
+          <div class="about-text">
+            <h3>BiT_KiLLER</h3>
+            <p>
+              I'm a simple guy who loves anime, cats, games, and tech. My
+              journey in the digital world started with gaming since i was 5
+              years old, which led me to explore various aspects of technology
+              and communities.
+            </p>
+
+            <p>
+              When I'm not in any gaming worlds, you can find me watching the
+              latest anime series, or tinkering with new tech gadgets. I believe
+              in the power of technology to bring people together and create
+              amazing experiences.
+            </p>
+
+            <div class="quote">"A hard worker with big dreams"</div>
+
+            <p>
+              My love for gaming communities has shaped my path, allowing me to
+              contribute to some amazing platforms and connect with like-minded
+              individuals across the globe.
+            </p>
+          </div>
+          <!-- Replace with your actual image path -->
+          <img
+            src="https://i.pinimg.com/736x/29/56/4b/29564b7007ce5e0710d97510e87957df.jpg"
+            alt="BiT_KiLLER"
+            class="about-image"
+          />
+        </div>
+      </section>
+
+      <h2 class="section-title">Roles & Experience</h2>
+
+      <section class="roles-section">
+        <div class="roles-grid">
+          <div class="role-card">
+            <h3>Discord Guardian</h3>
+            <span class="company"><a class="BSlink" href="https://discord.gg/bluestacks" target="_blank">BlueStacks</a></span>
+            <span class="duration">2024 - Present</span>
+            <p>
+              Ensuring community safety, resolving conflicts, and assisting
+              users with emulator-related queries. Collaborating with the
+              BlueStacks team to improve user experience.
+            </p>
+          </div>
+          <div class="role-card">
+            <h3>Discord Guardian</h3>
+            <span class="company"> <a class="NG6t6" href="https://discord.gg/zbHmX8GGtY" target="_blank"> Now.gg </a></span>
+            <span class="duration">2023 - Present</span>
+            <p>
+              Maintaining a positive community environment, enforcing server
+              rules, and helping users with technical issues and fostering
+              engagement among members.
+            </p>
+          </div>
+
+          <div class="role-card"></div>
+          <div class="role-card"></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="social-links">
+      <a href="#" class="social-link"><i class="fab fa-discord"></i></a>
+      <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+      <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+      <div class="social-line"></div>
+    </div>
+
+    <a href="https://discord.gg/2Nvwkz8uEQ" class="email-link" target="_blank">
+      BiT_KiLLER
+      <div class="email-line"></div>
+    </a>
+
+    <script>
+      // Create floating bubbles
+      const bubblesContainer = document.getElementById("bubbles");
+      const bubbleCount = 15;
+
+      for (let i = 0; i < bubbleCount; i++) {
+        const bubble = document.createElement("div");
+        bubble.classList.add("bubble");
+
+        const size = Math.random() * 100 + 50;
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${Math.random() * 100}vw`;
+        bubble.style.bottom = `-${size}px`;
+        bubble.style.animationDuration = `${10 + Math.random() * 20}s`;
+        bubble.style.animationDelay = `${Math.random() * 5}s`;
+
+        bubblesContainer.appendChild(bubble);
+      }
+
+      // Custom cursor
+      const cursor = document.getElementById("cursor");
+      document.addEventListener("mousemove", (e) => {
+        cursor.style.left = `${e.clientX}px`;
+        cursor.style.top = `${e.clientY}px`;
+      });
+
+      // Cursor effects on interactive elements
+      const interactiveElements = document.querySelectorAll(
+        "a, button, .role-card",
+      );
+      interactiveElements.forEach((el) => {
+        el.addEventListener("mouseenter", () => {
+          cursor.style.transform = "translate(-50%, -50%) scale(1.5)";
+          cursor.style.opacity = "0.7";
+        });
+        el.addEventListener("mouseleave", () => {
+          cursor.style.transform = "translate(-50%, -50%) scale(1)";
+          cursor.style.opacity = "1";
+        });
+      });
+
+      // Glass morphism effect on scroll
+      window.addEventListener("scroll", () => {
+        const scrollPosition = window.scrollY;
+        const header = document.querySelector("header");
+
+        if (scrollPosition > 10) {
+          header.style.background = "rgba(10, 25, 47, 0.9)";
+          header.style.boxShadow = "0 10px 30px -10px rgba(2, 12, 27, 0.7)";
+        } else {
+          header.style.background = "var(--transparent)";
+          header.style.boxShadow = "none";
+        }
+      });
+    </script>
+  </body>
+</html>
