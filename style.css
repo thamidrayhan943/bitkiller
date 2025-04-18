@@ -1,0 +1,32 @@
+body{
+  user-select: none;
+}
+
+.logo {
+  cursor: pointer;
+}
+.logo:hover {
+  color: aliceblue;
+
+}
+ 
+.BSlink{
+  color:white;
+  text-decoration: none;
+}
+
+.BSlink:hover{
+  text-decoration:underline;
+  text-decoration-color: rgba(127, 255, 212, 0.401);
+}
+
+.NG6t6 {
+  color:white;
+  text-decoration: none;
+}
+
+
+.NG6t6:hover{
+  text-decoration:underline;
+  text-decoration-color: rgba(127, 255, 212, 0.401);
+}
